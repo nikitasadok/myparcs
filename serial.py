@@ -1,24 +1,20 @@
 import random
 
-file = open('input-5mil2.txt', "r")
+file = open('input-1mil.txt', "r")
 num_words = int(file.readline())
 arr_chunk = []
 
-strs = []
-n = 50
 for i in range(num_words):
-    s = ''
-    for j in range(random.randint(6, n)):
-        letter = random.randint(65, 123)
-        s += str(chr(letter))
-    strs.append(s)
+    arr_chunk.append(file.readline())
 
-max_len = 0
-longest_words = []
-for word in strs:
-    if len(word) > max_len:
-        max_len = len(word)
+z_funcs = []
+for word in arr_chunk:
+    n = len(word)
+    z = []
+    for i in range(n):
+        z.append(0)
 
-for word in strs:
-    if len(word) == max_len:
-        longest_words.append(word)
+    for i in range (1, n):
+        while (i + z[i] < n and word[z[i]] == word[i + z[i]]):
+            z[i] += 1
+        z_funcs.append("".join(str(x) for x in z[:(n-1)]))

@@ -1,7 +1,7 @@
 import random
 
-n = 25
-N = 5000000
+n = 15
+N = 1000000
 
 strs = []
 for i in range(N):
@@ -13,7 +13,7 @@ for i in range(N):
     strs.append(s)
 
 
-f = open("input-5mil.txt", "a")
+f = open("input-1mil.txt", "a")
 f.write("\n".join(strs))
 
     
