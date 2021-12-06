@@ -1,7 +1,5 @@
-# import gmpy2
 from Pyro4 import expose
 import random
-
 
 def gcd(a,b):
     while (b):
@@ -98,5 +96,3 @@ class Solver:
         # file.write(']\n')
         file.close()
         print("output done")
-
-# res = Solver.find_carmichael_numbers(2, 500000)
