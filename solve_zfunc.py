@@ -2,6 +2,38 @@
 from Pyro4 import expose
 import random
 
+
+def gcd(a,b):
+    while (b):
+        a, b = b, a % b
+    return a
+
+def is_prime(n):
+    if n <= 2:
+        return n == 2
+
+    if n % 2 == 0:
+        return False
+
+    for divisor in range(3, int(n ** 0.5) + 1, 2):
+        if n % divisor == 0:
+            return False
+
+    return True
+
+
+def is_Carmichael(n):
+    if n <= 2 or n % 2 == 0 or is_prime(n):
+        return False
+
+    for a in range(3, n, 2):
+        if gcd(a, n) == 1:
+            if pow(a, n - 1, n) != 1:
+                return False
+
+    return True
+
+
 class Solver:
     def __init__(self, workers=None, input_file_name=None, output_file_name=None):
         self.input_file_name = input_file_name
@@ -12,69 +44,59 @@ class Solver:
     def solve(self):
         print("Job Started")
         print("Workers %d" % len(self.workers))
-        words = self.read_input()
-        step = len(words)/ len(self.workers)
+        start, end = self.read_input()
+        step = (end - start) / len(self.workers)
 
         mapped = []
 
         for i in xrange(0, len(self.workers)):
-            mapped.append(self.workers[i].mymap(words[int(i * step): int(i + 1) * step]))
+            mapped.append(self.workers[i].find_carmichael_numbers((i * start) * int(step), ((i + 1) * start) * int(step)))
 
         reduced = self.myreduce(mapped)
 
         self.write_output(reduced)
 
         print("Job Finished")
-
+   
     @staticmethod
     @expose
-    def mymap(arr_chunk):
-        z_funcs = []
-        for word in arr_chunk:
-            n = len(word)
-            z = []
-            for i in range(n):
-                z.append(0)
+    def find_carmichael_numbers(start, end):
+        res = []
+        for n in xrange(start, end):
+            if is_Carmichael(n):
+                res.append(n)
 
-            for i in range (1, n):
-                while (i + z[i] < n and word[z[i]] == word[i + z[i]]):
-                    z[i] += 1
-            z_funcs.append("".join(str(x) for x in z[:(n-1)]))
-
-        return z_funcs
+        return res  
 
     @staticmethod
     @expose
     def myreduce(mapped):
         print("reduce")
         output = []
-        max_len = 0
         for z_funcs in mapped:
             output.append(z_funcs.value)
         new_out = []
 
-        for i in range(len(output)):
-            for j in range(len(output[i])):
-                new_out.append(output[i][j] + "\n")
+        for i in xrange(len(output)):
+            for j in xrange(len(output[i])):
+                new_out.append(str(output[i][j]))
 
         return new_out
 
     def read_input(self):
         file = open(self.input_file_name, 'r')
-        num_words = int(file.readline())
-
-        words = []
-        for i in range(num_words):
-            words.append(file.readline())
-
+        interval = file.readline()
+        interval_parts = interval.split(" ")
         file.close()
 
-        return words
+        return int(interval_parts[0]), int(interval_parts[1])
 
     def write_output(self, output):
         file = open(self.output_file_name, 'w')
        #file.write('[\n'))  
-        file.write("".join(output))
+        file.write("\n".join(output))
         # file.write(']\n')
         file.close()
         print("output done")
+
+# res = Solver.find_carmichael_numbers(2, 500000)
